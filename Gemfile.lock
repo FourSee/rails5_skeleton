@@ -52,6 +52,9 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
+    annotate (2.7.2)
+      activerecord (>= 3.2, < 6.0)
+      rake (>= 10.4, < 13.0)
     arel (9.0.0)
     ast (2.4.0)
     attr_encrypted (3.1.0)
@@ -325,6 +328,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  annotate
   attr_encrypted
   bootsnap (>= 1.1.0)
   bullet

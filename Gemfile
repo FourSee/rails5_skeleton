@@ -37,6 +37,7 @@ gem "bootsnap", ">= 1.1.0", require: false
 # gem 'rack-cors'
 
 group :development, :test do
+  gem "annotate"
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem "bullet"
   gem "byebug", platforms: %i[mri mingw x64_mingw]

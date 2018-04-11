@@ -72,3 +72,4 @@
 exclude_paths:
   - vendor/
   - db/
+  - config/
