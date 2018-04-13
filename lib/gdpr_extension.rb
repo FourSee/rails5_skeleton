@@ -4,6 +4,10 @@ module GdprExtension
   extend ActiveSupport::Concern
   class_methods do
     def has_personal_information? # rubocop:disable Naming/PredicateName
+      !!personal_information
+    end
+
+    def personal_information
       false
     end
 
@@ -19,14 +23,14 @@ module GdprExtension
 
     def outdated_records
       if can_expire?
-        where("DATETIME(created_at, '+? seconds') < ?", retention_period, Time.current)
+        where("created_at < ?", retention_period.ago)
       else
         none # this way we can safely call this method but it won't delete anything
       end
     end
 
-    def export_personal_information_from_model(_user_id)
-      raise "method export_personal_information_from_model not defined"
+    def export_personal_information(_user_id)
+      raise "method export_personal_information not defined"
     end
   end
 end

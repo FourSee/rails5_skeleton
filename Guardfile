@@ -26,6 +26,63 @@
 #  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 
+# guard 'brakeman', run_on_start: true do
+#   watch(%r{^app/.+\.(erb|haml|rhtml|rb)$})
+#   watch(%r{^config/.+\.rb$})
+#   watch(%r{^lib/.+\.rb$})
+#   watch('Gemfile')
+# end
+
+guard :rubocop, all_on_start: false, cli: ['--rails'] do
+  watch(/.+\.rb$/)
+  watch(%r{(?:.+/)?\.rubocop(?:_todo)?\.yml$}) { |m| File.dirname(m[0]) }
+end
+
+guard 'migrate' do
+  watch(%r{^db/migrate/(\d+).+\.rb})
+  watch('db/seeds.rb')
+end
+
+guard 'bundler_audit', run_on_start: true do
+  watch('Gemfile.lock')
+end
+
+# guard 'rails_best_practices', vendor: false, test: false do
+#   watch(%r{^app/(.+)\.rb$})
+# end
+
+# Add any file/pattern you want to have beautified beyond these.
+guard :rubybeautify do
+	watch(%r{lib/.+\.rb})
+	watch('Gemfile')
+	watch('%r{.+.gemspec}')
+end
+
+### This is a more complete example including all the possible options.
+# guard :rubybeautify, count: 2, style: :spaces, grace_period: 1 do
+# watch(%r{lib/.+\.rb})
+# watch('Gemfile')
+# watch('%r{.+.gemspec}')
+# end
+
+guard :bundler do
+  require 'guard/bundler'
+  require 'guard/bundler/verify'
+  helper = Guard::Bundler::Verify.new
+
+  files = ['Gemfile']
+  files += Dir['*.gemspec'] if files.any? { |f| helper.uses_gemspec?(f) }
+
+  # Assume files are symlinked from somewhere
+  files.each { |file| watch(helper.real_path(file)) }
+end
+
+# guard 'reek' do
+#   watch(%r{.+\.rb$})
+#   watch('.reek')
+# end
+
+
 guard :rspec, cmd: 'bundle exec rspec' do
   require 'guard/rspec/dsl'
   dsl = Guard::RSpec::Dsl.new(self)
@@ -69,60 +126,4 @@ guard :rspec, cmd: 'bundle exec rspec' do
   watch(%r{^spec/acceptance/steps/(.+)_steps\.rb$}) do |m|
     Dir[File.join("**/#{m[1]}.feature")][0] || 'spec/acceptance'
   end
-end
-
-guard 'brakeman', run_on_start: true do
-  watch(%r{^app/.+\.(erb|haml|rhtml|rb)$})
-  watch(%r{^config/.+\.rb$})
-  watch(%r{^lib/.+\.rb$})
-  watch('Gemfile')
-end
-
-guard :rubocop do
-  watch(/.+\.rb$/)
-  watch(%r{(?:.+/)?\.rubocop(?:_todo)?\.yml$}) { |m| File.dirname(m[0]) }
-end
-
-guard 'migrate' do
-  watch(%r{^db/migrate/(\d+).+\.rb})
-  watch('db/seeds.rb')
-end
-
-guard 'bundler_audit', run_on_start: true do
-  watch('Gemfile.lock')
-end
-
-guard 'rails_best_practices', vendor: false, test: false do
-  watch(%r{^app/(.+)\.rb$})
-end
-
-# Add any file/pattern you want to have beautified beyond these.
-guard :rubybeautify do
-	watch(%r{lib/.+\.rb})
-	watch('Gemfile')
-	watch('%r{.+.gemspec}')
-end
-
-### This is a more complete example including all the possible options.
-# guard :rubybeautify, count: 2, style: :spaces, grace_period: 1 do
-# watch(%r{lib/.+\.rb})
-# watch('Gemfile')
-# watch('%r{.+.gemspec}')
-# end
-
-guard :bundler do
-  require 'guard/bundler'
-  require 'guard/bundler/verify'
-  helper = Guard::Bundler::Verify.new
-
-  files = ['Gemfile']
-  files += Dir['*.gemspec'] if files.any? { |f| helper.uses_gemspec?(f) }
-
-  # Assume files are symlinked from somewhere
-  files.each { |file| watch(helper.real_path(file)) }
-end
-
-guard 'reek' do
-  watch(%r{.+\.rb$})
-  watch('.reek')
 end
