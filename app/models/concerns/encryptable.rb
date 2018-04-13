@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Encryptable
+  extend ActiveSupport::Concern
   def redis_connection
     @redis_connection ||= Redis::Namespace.new(:encrypt, redis: Redis.new)
   end
@@ -8,28 +9,29 @@ module Encryptable
   # Gotta clean up the :reek:TooManyStatements
   def encryption_key
     if self.class.name == "User"
-      if id
-        key = id.to_s
-        @encryption_key = redis_connection.get(key)
+      if persisted?
+        @encryption_key = redis_connection.get(id)
       else # for new records
         @encryption_key ||= create_encryption_key
       end
       return @encryption_key
     end
     if defined?(user_id)
-      key = user_id.to_s
-      raise ArgumentError("Invalid user_id") if key.empty?
-      @encryption_key = redis_connection.get(key)
+      raise ArgumentError("Invalid user_id") unless user_id
+      @encryption_key = redis_connection.get(user_id)
     else
-      raise 'You need to override an encryption_key method - no
-        direct connection to user_id'
+      raise "You need to override an encryption_key method - no direct connection to user_id"
     end
+  end
+
+  def delete_encryption_key
+    redis_connection.del(id)
   end
 
   # we might only need this in our User model but it's still part of our encryptable library
   # It's a :reek:UtilityFunction
   def create_encryption_key
-    Rails.application.secrets.partial_encryption_key + SecureRandom.random_bytes(28)
+    Rails.application.credentials.env.encryptable_seed + SecureRandom.random_bytes(28)
     # we take 4 bytes of our encryption_key from application secrets file wuth remaining 28 to be stored inside Redis
   end
 

@@ -14,6 +14,7 @@ require 'action_view/railtie'
 require 'action_cable/engine'
 # require "sprockets/railtie"
 require 'rails/test_unit/railtie'
+require_relative 'rails_env'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -38,6 +39,10 @@ module WhoIsDoingCodeReview
 
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid
+    end
+
+    config.after_initialize do
+      Rails.application.credentials.env = RailsEnv.new
     end
   end
 end
