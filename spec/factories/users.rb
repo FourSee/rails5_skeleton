@@ -14,6 +14,7 @@
 #  encrypted_preferred_name    :string
 #  encrypted_username_iv       :string
 #  encrypted_username          :string
+#  email_hash                  :string           not null
 #
 
 FactoryBot.define do

@@ -14,6 +14,7 @@
 #  encrypted_preferred_name    :string
 #  encrypted_username_iv       :string
 #  encrypted_username          :string
+#  email_hash                  :string           not null
 #
 
 class User < ApplicationRecord
@@ -25,6 +26,8 @@ class User < ApplicationRecord
 
   has_many :user_consents, -> { consented.up_to_date }, inverse_of: :user, dependent: :destroy
   has_many :consents, through: :user_consents, inverse_of: :users
+
+  validate :unique_email
 
   # entry point for exporting user's personal information
   def export_personal_information
@@ -44,5 +47,20 @@ class User < ApplicationRecord
 
   def self.personal_information
     %i[id short_id username preferred_name email updated_at created_at]
+  end
+
+  # Can't rely on the built-in uniqueness validator, since it won't work on encrypted fields
+  def unique_email
+    if User.where.not(id: id).find_by(email_hash: hash_email)
+      errors.add(:email, "has already been taken")
+    else
+      self.email_hash = hash_email
+    end
+  end
+
+  private
+
+  def hash_email
+    Digest::RMD160.hexdigest(Rails.application.credentials.env.encryptable_seed + email.downcase)
   end
 end
