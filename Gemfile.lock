@@ -6,16 +6,6 @@ GIT
       guard (>= 2.10.1)
       rails_best_practices (>= 1.1.0)
 
-GIT
-  remote: https://github.com/ma3tk/globalize.git
-  revision: f7dddb0e871fea84ab95a041706c0bf9defc79b4
-  branch: feature/update-rails-5-2
-  specs:
-    globalize (5.1.0)
-      activemodel (>= 4.2, < 5.3)
-      activerecord (>= 4.2, < 5.3)
-      request_store (~> 1.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -167,6 +157,8 @@ GEM
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     json (2.1.0)
+    json_translate (4.0.0)
+      activerecord (>= 4.2.0)
     jwt (1.5.6)
     knock (2.1.1)
       bcrypt (~> 3.1)
@@ -263,8 +255,6 @@ GEM
       codeclimate-engine-rb (~> 0.4.0)
       parser (>= 2.5.0.0, < 2.6)
       rainbow (>= 2.0, < 4.0)
-    request_store (1.4.1)
-      rack (>= 1.4)
     require_all (1.5.0)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)
@@ -368,7 +358,6 @@ DEPENDENCIES
   dotenv-rails
   factory_bot_rails
   ffaker
-  globalize!
   guard
   guard-brakeman
   guard-bundler
@@ -379,6 +368,7 @@ DEPENDENCIES
   guard-rspec
   guard-rubocop
   guard-rubybeautify
+  json_translate
   knock
   listen (>= 3.0.5, < 3.2)
   pg (>= 0.18, < 2.0)

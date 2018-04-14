@@ -28,8 +28,7 @@ gem "knock"
 
 gem "base62-rb"
 
-# Using this source until https://github.com/globalize/globalize/pull/677 has been merged or closed
-gem "globalize", git: "https://github.com/ma3tk/globalize.git", branch: "feature/update-rails-5-2"
+gem "json_translate"
 
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'
