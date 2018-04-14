@@ -44,5 +44,8 @@ module WhoIsDoingCodeReview
     config.after_initialize do
       Rails.application.credentials.env = RailsEnv.new
     end
+
+    config.i18n.fallbacks = true
+    config.i18n.default_locale = :en
   end
 end

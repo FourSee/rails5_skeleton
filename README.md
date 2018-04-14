@@ -19,9 +19,8 @@ Users can't actually log in yet, because no devise. Haven't decided if I want it
 
 ### Non-GDPR features:
 
-* I18n on model attributes via the `globalize` gem (see `Consent` model for example) - uses a 5.2 compatible fork until `globalize` updates their gemspec
+* I18n on model attributes via the `json_translate` gem (see `Consent` model for example)
 
 
 ### TODO:
-* automatically expire `user_consents` when the `consent` is updated
-* add a `consented_to?(key)` method on user for easy function gating
+* Database indexes need a lot of love

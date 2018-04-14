@@ -17,20 +17,11 @@ ActiveRecord::Schema.define(version: 2018_04_14_035252) do
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
-  create_table "consent_translations", force: :cascade do |t|
-    t.uuid "consent_id", null: false
-    t.string "locale", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "title"
-    t.text "content"
-    t.index ["consent_id"], name: "index_consent_translations_on_consent_id"
-    t.index ["locale"], name: "index_consent_translations_on_locale"
-  end
-
   create_table "consents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "title_translations"
+    t.jsonb "content_translations"
     t.citext "key", null: false
     t.index ["key"], name: "index_consents_on_key", unique: true
   end

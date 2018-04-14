@@ -58,6 +58,10 @@ class User < ApplicationRecord
     end
   end
 
+  def consented_to?(key)
+    consents.find_by(key: key)
+  end
+
   private
 
   def hash_email
