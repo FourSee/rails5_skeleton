@@ -23,6 +23,9 @@ class User < ApplicationRecord
   after_create :save_encryption_key
   after_destroy :delete_encryption_key
 
+  has_many :user_consents, -> { consented.up_to_date }, inverse_of: :user, dependent: :destroy
+  has_many :consents, through: :user_consents, inverse_of: :users
+
   # entry point for exporting user's personal information
   def export_personal_information
     return unless persisted?

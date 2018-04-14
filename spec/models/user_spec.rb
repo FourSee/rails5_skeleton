@@ -19,7 +19,7 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
-  subject(:user) { build :user }
+  subject(:user) { create :user }
 
   it_behaves_like "an encryptable object", %i[email preferred_name username]
 
