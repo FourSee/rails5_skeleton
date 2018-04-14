@@ -28,6 +28,9 @@ gem "knock"
 
 gem "base62-rb"
 
+# Using this source until https://github.com/globalize/globalize/pull/677 has been merged or closed
+gem "globalize", git: "https://github.com/ma3tk/globalize.git", branch: "feature/update-rails-5-2"
+
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'
 
@@ -74,7 +77,9 @@ end
 
 group :test do
   gem "ffaker"
+  gem "rails-controller-testing"
   gem "rspec-json_matcher"
+  gem "shoulda-matchers"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
