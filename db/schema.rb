@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_04_13_203248) do
+ActiveRecord::Schema.define(version: 2018_04_14_035252) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -56,6 +56,8 @@ ActiveRecord::Schema.define(version: 2018_04_13_203248) do
     t.string "encrypted_preferred_name"
     t.string "encrypted_username_iv"
     t.string "encrypted_username"
+    t.string "email_hash", null: false
+    t.index ["email_hash"], name: "index_users_on_email_hash", unique: true
   end
 
 end

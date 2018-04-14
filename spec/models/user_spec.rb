@@ -14,6 +14,7 @@
 #  encrypted_preferred_name    :string
 #  encrypted_username_iv       :string
 #  encrypted_username          :string
+#  email_hash                  :string           not null
 #
 
 require "rails_helper"
@@ -22,6 +23,8 @@ RSpec.describe User, type: :model do
   subject(:user) { create :user }
 
   it_behaves_like "an encryptable object", %i[email preferred_name username]
+
+  it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
 
   it "exports data in a GDPR-compliant way" do
     expect(create(:user).export_personal_information).to be_json
