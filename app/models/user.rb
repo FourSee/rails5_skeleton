@@ -29,6 +29,8 @@ class User < ApplicationRecord
 
   validate :unique_email
 
+  scope :consented_to, ->(c) { joins(:user_consents).where(user_consents: {consent: c}) }
+
   # entry point for exporting user's personal information
   def export_personal_information
     return unless persisted?
@@ -47,6 +49,11 @@ class User < ApplicationRecord
 
   def self.personal_information
     %i[id short_id username preferred_name email updated_at created_at]
+  end
+
+  # Can't just `pluck` like normal, since email is a virtual attribute
+  def self.emails
+    select(:id, :encrypted_email, :encrypted_email_iv).map(&:email)
   end
 
   # Can't rely on the built-in uniqueness validator, since it won't work on encrypted fields

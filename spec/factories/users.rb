@@ -19,8 +19,8 @@
 
 FactoryBot.define do
   factory :user do
-    username { FFaker::Internet.user_name }
-    preferred_name { FFaker::Name.name }
-    email { FFaker::Internet.email }
+    sequence(:username) {|n| "username#{n}" }
+    sequence(:email, User.count + 10_000) {|n| "email#{n}@domain.com" }
+    sequence(:preferred_name) {|n| "preferred_name#{n}" }
   end
 end

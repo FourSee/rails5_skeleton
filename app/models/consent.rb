@@ -23,7 +23,7 @@ class Consent < ApplicationRecord
 
   # Can't just `pluck` like normal, since email is a virtual attribute
   def emails
-    users.map(&:email)
+    users.select(:id, :encrypted_email, :encrypted_email_iv).map(&:email)
   end
 
   # Can't just `pluck` like normal, since username is a virtual attribute

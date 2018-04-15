@@ -30,6 +30,8 @@ gem "base62-rb"
 
 gem "json_translate"
 
+gem "activerecord-import"
+gem "connection_pool"
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'
 
@@ -47,7 +49,8 @@ group :development, :test do
   gem "awesome_print"
   gem "bullet"
   gem "byebug", platforms: %i[mri mingw x64_mingw]
-  gem "factory_bot_rails"
+  gem "debase"
+  gem "factory_bot_rails", require: false
   gem "guard", require: false
   gem "guard-brakeman", require: false
   gem "guard-bundler", require: false
@@ -58,10 +61,12 @@ group :development, :test do
   gem "guard-rspec", require: false
   gem "guard-rubocop", require: false
   gem "guard-rubybeautify", require: false
+  gem "pg-eyeballs"
   gem "rspec-rails"
   gem "rubocop"
   gem "rubocop-rails"
   gem "rubocop-rspec"
+  gem "ruby-debug-ide"
   gem "ruby-growl"
   gem "rubycritic"
   gem "uniform_notifier"

@@ -28,4 +28,9 @@ RSpec.describe UserConsent, type: :model do
   it { expect(consent.users).not_to include(non_consented_user) }
   it { expect(consent.users).not_to include(expired_consented_user) }
   it { expect(consent.users).not_to include(revoked_consented_user) }
+
+  it "scopes User on consented_to" do
+    expect(User.consented_to(consent)).to include(consented_user)
+    expect(User.consented_to(consent)).not_to include(non_consented_user)
+  end
 end
