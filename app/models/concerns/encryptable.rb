@@ -62,9 +62,6 @@ module Encryptable
     # just to stay on safe side
     raise "Encryption key already exists" if redis_connection.get(key)
     redis_connection.set(key, @encryption_key)
-  rescue Errno::EBUSY
-    print "."
-    retry
   end
 
   # what do return in attribute field when there's no key
@@ -76,6 +73,7 @@ module Encryptable
   # it will return a correct value when no key exists
   # you can also consider overriding encrypt in a similar fashion
   # (although for me it makes sense that no key = you cant edit whats inside)
+  # :reek:DuplicateMethodCall happens a lot
   def decrypt(attribute, encrypted_value)
     encrypted_attributes[attribute.to_sym][:operation] = :decrypting
     encrypted_attributes[attribute.to_sym][:value_present] = self.class.not_empty?(encrypted_value)
