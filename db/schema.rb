@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_04_14_035252) do
+ActiveRecord::Schema.define(version: 2018_04_14_232346) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -33,7 +33,9 @@ ActiveRecord::Schema.define(version: 2018_04_14_035252) do
     t.boolean "up_to_date", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["consent_id", "user_id", "consented", "up_to_date"], name: "consented_to_index", where: "((consented = true) AND (up_to_date = true))"
     t.index ["consent_id"], name: "index_user_consents_on_consent_id"
+    t.index ["consented", "up_to_date", "user_id", "id"], name: "valid_consents", where: "((consented = true) AND (up_to_date = true))"
     t.index ["user_id"], name: "index_user_consents_on_user_id"
   end
 
@@ -49,6 +51,7 @@ ActiveRecord::Schema.define(version: 2018_04_14_035252) do
     t.string "encrypted_username"
     t.string "email_hash", null: false
     t.index ["email_hash"], name: "index_users_on_email_hash", unique: true
+    t.index ["id", "encrypted_email", "encrypted_email_iv"], name: "user_email"
   end
 
 end

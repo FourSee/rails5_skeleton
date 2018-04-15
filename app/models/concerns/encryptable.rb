@@ -3,22 +3,27 @@
 module Encryptable
   extend ActiveSupport::Concern
   def redis_connection
-    @redis_connection ||= Redis::Namespace.new(:encrypt, redis: Redis.new)
+    @redis_connection ||= ConnectionPool::Wrapper.new(size: ENV.fetch("REDIS_POOL", 5), timeout: 3) {
+      Redis::Namespace.new(:encrypt, redis: Redis.new)
+    }
+  end
+
+  def encryption_key
+    @encryption_key ||= get_encryption_key
   end
 
   # Gotta clean up the :reek:TooManyStatements
-  def encryption_key
+  def get_encryption_key
     if self.class.name == "User"
       if persisted?
-        @encryption_key = redis_connection.get(id)
+        return redis_connection.get(id)
       else # for new records
-        @encryption_key ||= create_encryption_key
+        return create_encryption_key
       end
-      return @encryption_key
     end
     if defined?(user_id)
       raise ArgumentError("Invalid user_id") unless user_id
-      @encryption_key = redis_connection.get(user_id)
+      return redis_connection.get(user_id)
     else
       raise "You need to override an encryption_key method - no direct connection to user_id"
     end
@@ -49,15 +54,17 @@ module Encryptable
 
   # this saves our encryption key in Redis so it's persistent
   def save_encryption_key
-    namespaced_redis = redis_connection
     key = if defined?(user_id)
             user_id.to_s
           else
             id.to_s
           end
     # just to stay on safe side
-    raise "Encryption key already exists" if namespaced_redis.get(key)
-    namespaced_redis.set(key, @encryption_key)
+    raise "Encryption key already exists" if redis_connection.get(key)
+    redis_connection.set(key, @encryption_key)
+  rescue Errno::EBUSY
+    print "."
+    retry
   end
 
   # what do return in attribute field when there's no key
