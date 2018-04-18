@@ -20,6 +20,12 @@ Users can't actually log in yet, because no devise. Haven't decided if I want it
 * `User.emails` class accessor, for efficient email fetching (repeatable pattern for other encrypted attributes)
 * Has an easy user-owned data export feature via `user.export_personal_information`, which goes through every model that has a `user_id` and returns not-false for `self.personal_information`. Each model is responsible for returning a hash of attributes considered `personal_information`
 
+### OMG LOSING THE DECRYPTION KEY MEANS PERMANENT DATA LOSS
+
+Yes, deleting the user's decryption key from redis means permanent data loss. That's the whole point of the GDPR "right-to-be-forgotten" clause.
+
+To prevent accidental data loss, Redis should be persisted & snapshotted regularly. User data is still recoverable as long as a snapsot exists. As such, snapshots should be kept for 30 days, then `shred`ed.  
+
 ### Non-GDPR features:
 
 * I18n on model attributes via the `json_translate` gem (see `Consent` model for example)
