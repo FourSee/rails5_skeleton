@@ -4,7 +4,6 @@
 # Table name: users
 #
 #  id                          :uuid             not null, primary key, indexed => [encrypted_email, encrypted_email_iv]
-#  email_hash                  :string           not null, indexed
 #  encrypted_email             :string           indexed => [id, encrypted_email_iv]
 #  encrypted_email_iv          :string           indexed => [id, encrypted_email]
 #  encrypted_password          :string
@@ -18,9 +17,8 @@
 #
 # Indexes
 #
-#  index_users_on_email_hash  (email_hash) UNIQUE
-#  index_users_on_uuid        (uuid) UNIQUE
-#  user_email                 (id,encrypted_email,encrypted_email_iv)
+#  index_users_on_uuid  (uuid) UNIQUE
+#  user_email           (id,encrypted_email,encrypted_email_iv)
 #
 
 class User < ApplicationRecord
@@ -34,8 +32,6 @@ class User < ApplicationRecord
 
   has_many :user_consents, -> { consented.up_to_date }, inverse_of: :user, dependent: :destroy
   has_many :consents, through: :user_consents, inverse_of: :users
-
-  validate :unique_email
 
   scope :consented_to, ->(c) { joins(:user_consents).where(user_consents: {consent: c}) }
 
@@ -64,15 +60,6 @@ class User < ApplicationRecord
     select(:id, :encrypted_email, :encrypted_email_iv).map(&:email)
   end
 
-  # Can't rely on the built-in uniqueness validator, since it won't work on encrypted fields
-  def unique_email
-    if User.where.not(id: id).find_by(email_hash: hash_email)
-      errors.add(:email, "has already been taken")
-    else
-      self.email_hash = hash_email
-    end
-  end
-
   def consented_to?(key)
     consents.find_by(key: key)
   end
@@ -81,9 +68,5 @@ class User < ApplicationRecord
 
   def set_uuid
     self.uuid ||= SecureRandom.uuid
-  end
-
-  def hash_email
-    Digest::RMD160.hexdigest(Rails.application.credentials.env.encryptable_seed + email.downcase)
   end
 end
