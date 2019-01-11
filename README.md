@@ -1,3 +1,5 @@
+[![Maintainability](https://api.codeclimate.com/v1/badges/42ada200dc7fa826a16f/maintainability)](https://codeclimate.com/github/FourSee/rails5_skeleton/maintainability)
+
 # A skeleton GDPR-compliant Rails 5.2/Ruby 2.5.1 application
 
 Runs on PostgreSQL 9.6 because I fucking love that database.
