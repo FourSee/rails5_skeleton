@@ -5,6 +5,7 @@
 # Table name: users
 #
 #  id                          :uuid             not null, primary key, indexed => [encrypted_email, encrypted_email_iv]
+#  email_hash                  :string           not null, indexed
 #  encrypted_email             :string           indexed => [id, encrypted_email_iv]
 #  encrypted_email_iv          :string           indexed => [id, encrypted_email]
 #  encrypted_password          :string
@@ -18,8 +19,9 @@
 #
 # Indexes
 #
-#  index_users_on_uuid  (uuid) UNIQUE
-#  user_email           (id,encrypted_email,encrypted_email_iv)
+#  index_users_on_email_hash  (email_hash) UNIQUE
+#  index_users_on_uuid        (uuid) UNIQUE
+#  user_email                 (id,encrypted_email,encrypted_email_iv)
 #
 
 require "rails_helper"
@@ -28,6 +30,8 @@ RSpec.describe User, type: :model do
   subject(:user) { create :user }
 
   it_behaves_like "an encryptable object", %i[email preferred_name username]
+
+  it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
 
   it "exports data in a GDPR-compliant way" do
     expect(create(:user).export_personal_information).to be_json
