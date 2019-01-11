@@ -23,15 +23,15 @@ FactoryBot.define do
   factory :user_consent do
     user { build :user }
     consent { build :consent }
-    consented false
-    up_to_date true
+    consented { false }
+    up_to_date { true }
 
     trait :expired do
-      up_to_date false
+      up_to_date { false }
     end
 
     trait :consented do
-      consented true
+      consented { true }
     end
   end
 end
