@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: users
@@ -38,6 +39,7 @@ class User < ApplicationRecord
   # entry point for exporting user's personal information
   def export_personal_information
     return unless persisted?
+
     descendants = ApplicationRecord.descendants.select(&:has_personal_information?)
     {}.tap do |result|
       descendants.each do |descendant|

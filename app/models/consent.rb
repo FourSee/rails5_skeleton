@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: consents
@@ -45,6 +46,7 @@ class Consent < ApplicationRecord
     # This can also be done with an array intersection, but this is faster for small arrays
     # https://stackoverflow.com/a/3941963
     return unless saved_changes.keys.any? {|c| %w[title_translations content_translations].include?(c) }
+
     user_consents.update_all(up_to_date: false, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
   end
 end
