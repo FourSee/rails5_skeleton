@@ -64,7 +64,7 @@ group :development, :test do
   gem "pg-eyeballs"
   gem "rspec-rails"
   gem "rubocop"
-  gem "rubocop-rails"
+  gem "rubocop-rails_config"
   gem "rubocop-rspec"
   gem "ruby-debug-ide"
   gem "ruby-growl"
