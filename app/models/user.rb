@@ -1,25 +1,33 @@
 # frozen_string_literal: true
-
 # == Schema Information
 #
 # Table name: users
 #
-#  id                          :uuid             not null, primary key
+#  id                          :uuid             not null, primary key, indexed => [encrypted_email, encrypted_email_iv]
+#  email_hash                  :string           not null, indexed
+#  encrypted_email             :string           indexed => [id, encrypted_email_iv]
+#  encrypted_email_iv          :string           indexed => [id, encrypted_email]
 #  encrypted_password          :string
-#  encrypted_email_iv          :string
-#  encrypted_email             :string
+#  encrypted_preferred_name    :string
+#  encrypted_preferred_name_iv :string
+#  encrypted_username          :string
+#  encrypted_username_iv       :string
+#  uuid                        :uuid             indexed
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
-#  encrypted_preferred_name_iv :string
-#  encrypted_preferred_name    :string
-#  encrypted_username_iv       :string
-#  encrypted_username          :string
-#  email_hash                  :string           not null
+#
+# Indexes
+#
+#  index_users_on_email_hash  (email_hash) UNIQUE
+#  index_users_on_uuid        (uuid) UNIQUE
+#  user_email                 (id,encrypted_email,encrypted_email_iv)
 #
 
 class User < ApplicationRecord
   include Encryptable
   attr_encrypted :email, :preferred_name, :username, key: :encryption_key
+
+  before_create :set_uuid
   before_create :create_encryption_key
   after_create :save_encryption_key
   after_destroy :delete_encryption_key
@@ -70,6 +78,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def set_uuid
+    self.uuid ||= SecureRandom.uuid
+  end
 
   def hash_email
     Digest::RMD160.hexdigest(Rails.application.credentials.env.encryptable_seed + email.downcase)

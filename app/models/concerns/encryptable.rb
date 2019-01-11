@@ -3,34 +3,33 @@
 module Encryptable
   extend ActiveSupport::Concern
   def redis_connection
-    @redis_connection ||= ConnectionPool::Wrapper.new(size: ENV.fetch("REDIS_POOL", 5), timeout: 3) {
-      Redis::Namespace.new(:encrypt, redis: Redis.new)
-    }
+    @redis_connection ||= $encryption_key_redis # rubocop:disable Style/GlobalVars
+  end
+
+  def self.blind_index_key
+    [Rails.application.credentials.env.index_seed].pack("H*")
   end
 
   def encryption_key
-    @encryption_key ||= get_encryption_key
+    @encryption_key ||= get_or_generate_encryption_key
   end
 
   # Gotta clean up the :reek:TooManyStatements
-  def get_encryption_key
+  # rubocop:disable Naming/AccessorMethodName
+  def get_or_generate_encryption_key
     if self.class.name == "User"
-      if persisted?
-        return redis_connection.get(id)
-      else # for new records
-        return create_encryption_key
-      end
+      return redis_connection.get(encryption_key_id) if persisted?
+
+      return create_encryption_key
     end
-    if defined?(user_id)
-      raise ArgumentError("Invalid user_id") unless user_id
-      return redis_connection.get(user_id)
-    else
-      raise "You need to override an encryption_key method - no direct connection to user_id"
-    end
+    return redis_connection.get(encryption_key_id) if defined?(encryption_key_id)
+
+    raise "You need to override an encryption_key method - no direct connection to user_id"
   end
+  # rubocop:enable Naming/AccessorMethodName
 
   def delete_encryption_key
-    redis_connection.del(id)
+    redis_connection.del(encryption_key_id)
   end
 
   # we might only need this in our User model but it's still part of our encryptable library
@@ -54,14 +53,11 @@ module Encryptable
 
   # this saves our encryption key in Redis so it's persistent
   def save_encryption_key
-    key = if defined?(user_id)
-            user_id.to_s
-          else
-            id.to_s
-          end
+    key = encryption_key_id
     # just to stay on safe side
     raise "Encryption key already exists" if redis_connection.get(key)
-    redis_connection.set(key, @encryption_key)
+
+    redis_connection.set(key, encryption_key)
   end
 
   # what do return in attribute field when there's no key
@@ -80,5 +76,11 @@ module Encryptable
     self.class.decrypt(attribute, encrypted_value, evaluated_attr_encrypted_options_for(attribute))
   rescue ArgumentError # must specify a key
     value_when_no_key
+  end
+
+  def encryption_key_id
+    return uuid if self.class.name == "User" && defined?(uuid)
+
+    user.try(:uuid)
   end
 end
