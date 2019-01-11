@@ -12,7 +12,7 @@ Users can't actually log in yet, because no devise. Haven't decided if I want it
 * Per-row encryption available on any model that has a `user`
 * Fields are individually encryptable
 * Encrypted fields are virtual attributes (eg: `encrypted_email` is available as `email`)
-* Encryption keys are stored in Redis, and deleted when the `user` is destroyed. This renders all personal data unrecoverable
+* Encryption keys are stored in Redis, and deleted when the `user` is destroyed. This renders all personal data unrecoverable (in theory, should be able to switch this to any key/value store)
 * User emails are case-insensitively unique via peppered RIPEMD one-way-hash, making the validation O(1) instead of O(n), where n is the number of user records. Also, peppering makes Googling the hash useless
 * Actions on users can be gated via the users `consents` EG: `Consent.find_by(key: 'email').users` gives a list of all users that have consented to recieve email
 * Consent can be expired by flagging the `user_consent.up_to_date` as `false`
