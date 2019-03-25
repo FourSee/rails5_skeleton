@@ -5,8 +5,8 @@
 # Table name: users
 #
 #  id                          :uuid             not null, primary key, indexed => [encrypted_email, encrypted_email_iv]
-#  email_hash                  :string           not null, indexed
 #  encrypted_email             :string           indexed => [id, encrypted_email_iv]
+#  encrypted_email_bidx        :string           indexed
 #  encrypted_email_iv          :string           indexed => [id, encrypted_email]
 #  encrypted_password          :string
 #  encrypted_preferred_name    :string
@@ -19,14 +19,15 @@
 #
 # Indexes
 #
-#  index_users_on_email_hash  (email_hash) UNIQUE
-#  index_users_on_uuid        (uuid) UNIQUE
-#  user_email                 (id,encrypted_email,encrypted_email_iv)
+#  index_users_on_encrypted_email_bidx  (encrypted_email_bidx)
+#  index_users_on_uuid                  (uuid) UNIQUE
+#  user_email                           (id,encrypted_email,encrypted_email_iv)
 #
 
 class User < ApplicationRecord
   include Encryptable
-  attr_encrypted :email, :preferred_name, :username, key: :encryption_key
+  attr_encrypted :email, :preferred_name, :username, default_crypto_options
+  blind_index :email, key: blind_index_key, expression: ->(v) { v.downcase }
 
   before_create :set_uuid
   before_create :create_encryption_key
@@ -36,9 +37,15 @@ class User < ApplicationRecord
   has_many :user_consents, -> { consented.up_to_date }, inverse_of: :user, dependent: :destroy
   has_many :consents, through: :user_consents, inverse_of: :users
 
-  validate :unique_email
+  validates :email, uniqueness: {case_sensitive: false}
+  before_validation :monkeypatch_email_bidx
 
   scope :consented_to, ->(c) { joins(:user_consents).where(user_consents: {consent: c}) }
+
+  # Required because the blind_index doesn't seem to like the email column
+  def monkeypatch_email_bidx
+    compute_email_bidx
+  end
 
   # entry point for exporting user's personal information
   def export_personal_information
@@ -66,15 +73,6 @@ class User < ApplicationRecord
     select(:id, :encrypted_email, :encrypted_email_iv).map(&:email)
   end
 
-  # Can't rely on the built-in uniqueness validator, since it won't work on encrypted fields
-  def unique_email
-    if User.where.not(id: id).find_by(email_hash: hash_email)
-      errors.add(:email, "has already been taken")
-    else
-      self.email_hash = hash_email
-    end
-  end
-
   def consented_to?(key)
     consents.find_by(key: key)
   end
@@ -83,9 +81,5 @@ class User < ApplicationRecord
 
   def set_uuid
     self.uuid ||= SecureRandom.uuid
-  end
-
-  def hash_email
-    Digest::RMD160.hexdigest(Rails.application.credentials.env.encryptable_seed + email.downcase)
   end
 end

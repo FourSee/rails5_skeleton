@@ -11,6 +11,9 @@ gem "dotenv-rails", groups: %i[development test], require: "dotenv/rails-now"
 gem "rails", "~> 5.2"
 
 gem "attr_encrypted" # and this we will use for per field encryption
+gem "blind_index"
+gem "lockbox"
+gem "rbnacl"
 
 # Use postgresql as the database for Active Record
 gem "pg", ">= 0.18", "< 2.0"
@@ -62,6 +65,7 @@ group :development, :test do
   gem "guard-rubocop", require: false
   gem "guard-rubybeautify", require: false
   gem "pg-eyeballs"
+  gem "pry-rescue"
   gem "rspec-rails"
   gem "rubocop"
   gem "rubocop-rails_config"

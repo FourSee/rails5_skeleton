@@ -2,12 +2,23 @@
 
 module Encryptable
   extend ActiveSupport::Concern
-  def redis_connection
-    @redis_connection ||= $encryption_key_redis # rubocop:disable Style/GlobalVars
+
+  class_methods do
+    def default_crypto_options
+      {
+        encryptor: Lockbox::Encryptor,
+        algorithm: "xchacha20",
+        key:       :encryption_key
+      }
+    end
+
+    def blind_index_key
+      [Rails.application.credentials.env.blind_index_key].pack("H*")
+    end
   end
 
-  def self.blind_index_key
-    [Rails.application.credentials.env.index_seed].pack("H*")
+  def redis_connection
+    @redis_connection ||= $encryption_key_redis # rubocop:disable Style/GlobalVars
   end
 
   def encryption_key
@@ -35,20 +46,7 @@ module Encryptable
   # we might only need this in our User model but it's still part of our encryptable library
   # It's a :reek:UtilityFunction
   def create_encryption_key
-    Rails.application.credentials.env.encryptable_seed + SecureRandom.random_bytes(28)
-    # we take 4 bytes of our encryption_key from application secrets file wuth remaining 28 to be stored inside Redis
-  end
-
-  # attr_encrypted requires encrypted_fieldname_iv to exist in the database
-  # This method will automatically populate all of them
-  def populate_iv_fields
-    fields = attributes.select {|attr| (attr.include?("iv") && attr.include?("encrypted")) }.keys
-    fields.each do |field|
-      unless public_send(field) # just in case so it's impossible to overwrite our iv
-        iv = SecureRandom.random_bytes(12)
-        public_send(field + "=", iv)
-      end
-    end
+    SecureRandom.random_bytes(32).unpack1("H*")
   end
 
   # this saves our encryption key in Redis so it's persistent
