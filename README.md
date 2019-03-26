@@ -27,3 +27,11 @@ We would like to send an email to all users on their birthday. Marketing hasn't 
 We also need to only send email to users who want to get email.
 
 Use whatever gems, email providers, ActiveJob adapters, etc. you'd like to enable this feature.
+
+## To complete this task
+
+1. Fork the repository
+1. Clone locally
+1. Setup Postgres and Redis (if you haven't already)
+1. Implement the feature
+1. Open a pull request back to this repository
