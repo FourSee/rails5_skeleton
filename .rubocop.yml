@@ -22,6 +22,7 @@ Rails:
 Metrics/LineLength:
   IgnoreCopDirectives: true
   Max: 120
+  IgnoredPatterns: ['(\A|\s)#']
 
 # No space makes the method definition shorter and differentiates
 # from a regular assignment.
@@ -159,6 +160,7 @@ Metrics/BlockLength:
     - 'Rakefile'
     - '**/*.rake'
     - 'spec/**/*.rb'
+    - 'Gemfile'
 
 Metrics/ModuleLength:
   Exclude:
