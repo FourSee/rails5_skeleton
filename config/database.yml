@@ -5,13 +5,13 @@ default: &default
 
 development:
   <<: *default
-  database: who_is_doing_code_review_development
+  database: rails_5_skeleton_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is
   # the same name as the operating system user that initialized the database.
-  #username: who_is_doing_code_review
+  #username: rails_5_skeleton
 
   # The password associated with the postgres role (username).
   #password:
@@ -39,7 +39,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: who_is_doing_code_review_test
+  database: rails_5_skeleton_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -62,6 +62,4 @@ test:
 #
 production:
   <<: *default
-  database: who_is_doing_code_review_production
-  username: who_is_doing_code_review
-  password: <%= ENV['WHO_IS_DOING_CODE_REVIEW_DATABASE_PASSWORD'] %>
+  url: <%= ENV['DATABASE_URL'] %>
