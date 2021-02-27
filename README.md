@@ -1,37 +1,37 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/42ada200dc7fa826a16f/maintainability)](https://codeclimate.com/github/FourSee/rails5_skeleton/maintainability)
 
-# A skeleton GDPR-compliant Rails 5.2/Ruby 2.5.1 application
+* Ruby 2.5.1
+* Rails 5.2.2.1
+* Postgres and Redis required
 
-Runs on PostgreSQL 9.6 because I fucking love that database.
+# The Birthday Email problem
 
-Users can't actually log in yet, because no devise. Haven't decided if I want it yet. Knock is better for pure APIs, anyway.
+Forked off a GDPR-compliant Rails 5 skeleton ([readme found here](https://github.com/FourSee/rails5_skeleton))
 
+## Scenario
 
-### Current features:
+In production, our `users` table has approximately 250,000 users from all over the world, speaking multiple languages. Each user has a `birthdate`. This field is not encrypted. Each user also has a `locale`, which represents their ISO 639 preferred language.
 
-* Per-row encryption available on any model that has a `user`
-* Fields are individually encryptable
-* Encrypted fields are virtual attributes (eg: `encrypted_email` is available as `email`)
-* Encryption keys are stored in Redis, and deleted when the `user` is destroyed. This renders all personal data unrecoverable (in theory, should be able to switch this to any key/value store)
-* User emails are case-insensitively unique via peppered RIPEMD one-way-hash, making the validation O(1) instead of O(n), where n is the number of user records. Also, peppering makes Googling the hash useless
-* Actions on users can be gated via the users `consents` EG: `Consent.find_by(key: 'email').users` gives a list of all users that have consented to recieve email
-* Consent can be expired by flagging the `user_consent.up_to_date` as `false`
-* `user.consents` and `consent.users` are scope-filtered by being `up_to_date` and `consented` (ie: if user hasn't revoked consent)
-* `User.consented_to(consent)` scope, hopefully with efficient DB indexes
-* `user.consented_to?(consent)` method
-* `User.emails` class accessor, for efficient email fetching (repeatable pattern for other encrypted attributes)
-* Has an easy user-owned data export feature via `user.export_personal_information`, which goes through every model that has a `user_id` and returns not-false for `self.personal_information`. Each model is responsible for returning a hash of attributes considered `personal_information`
+There is no email provider configured yet, and there's no ActiveJob currently set up.
 
-### OMG LOSING THE DECRYPTION KEY MEANS PERMANENT DATA LOSS
+Not all users want to recieve emails. To determine if a user wants to recieve email, there are some scopes and methods to help:
 
-Yes, deleting the user's decryption key from redis means permanent data loss. That's the whole point of the GDPR "right-to-be-forgotten" clause.
+* `Consent.find_by(key: 'email').users`, to get a list of users who want to get email
+* `User.consented_to(Consent.find_by(key: 'email'))`, will also get a list of users who want to get email
+* `user.consented_to?(Consent.find_by(key: 'email'))` will return `true` or `false` if a specific user wants to get email
 
-To prevent accidental data loss, Redis should be persisted & snapshotted regularly. User data is still recoverable as long as a snapsot exists. As such, snapshots should be kept for 30 days, then `shred`ed.  
+## New feature requirement
 
-### Non-GDPR features:
+We would like to send an email to all users on their birthday. Marketing hasn't written the birthday email copy yet, so placeholder text in the template is fine. It will need to be locale-aware for non-English speaking users.
 
-* I18n on model attributes via the `json_translate` gem (see `Consent` model for example)
+We also need to only send email to users who want to get email.
 
+Use whatever gems, email providers, ActiveJob adapters, etc. you'd like to enable this feature.
 
-### TODO:
-* Database indexes need a lot of love
+## To complete this task
+
+1. Fork the repository
+1. Clone locally
+1. Setup Postgres and Redis (if you haven't already)
+1. Implement the feature
+1. Open a pull request back to this repository
